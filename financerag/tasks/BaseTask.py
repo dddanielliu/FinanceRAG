@@ -47,7 +47,7 @@ class BaseTask:
             Saves the results (retrieval, reranking, and generated) to CSV and JSONL files.
     """
 
-    def __init__(self, metadata: TaskMetadata, load_data: bool = True):
+    def __init__(self, metadata: TaskMetadata, load_data: bool = True, **kwargs):
         """
         Initializes the BaseTask class with metadata for loading and processing retrieval tasks.
 
@@ -63,7 +63,7 @@ class BaseTask:
         self.generate_results: Optional[Dict] = None
 
         if load_data:
-            self.load_data()
+            self.load_data(**kwargs)
 
     @property
     def metadata_dict(self) -> Dict[str, Any]:
@@ -76,7 +76,7 @@ class BaseTask:
         """
         return dict(self.metadata)
 
-    def load_data(self):
+    def load_data(self, **kwargs):
         """
         Loads the corpus and queries from the specified dataset path and subset in the metadata.
 
@@ -92,6 +92,7 @@ class BaseTask:
                 data_folder=dataset_path,
                 subset=subset,
                 keep_in_memory=False,
+                **kwargs
             ).load()
 
             self.queries = {query["id"]: query["text"] for query in queries}

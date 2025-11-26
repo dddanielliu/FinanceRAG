@@ -11,11 +11,20 @@ from sentence_transformers import CrossEncoder
 
 from financerag.rerank import CrossEncoderReranker
 from financerag.retrieval import DenseRetrieval, SentenceTransformerEncoder
-from financerag.tasks import BaseTask
+from financerag.tasks import (
+    BaseTask,
+    ConvFinQA,
+    FinDER,
+    FinQABench,
+    FinQA,
+    FinanceBench,
+    MultiHiertt,
+    TATQA
+)
 
 # Setup basic logging configuration to show info level messages.
 logging.basicConfig(level=logging.INFO)
-
+logger = logging.getLogger(__name__)
 
 class TaskRunner:
     def __init__(self):
@@ -89,10 +98,28 @@ class TaskRunner:
 
         # Confirm the results have been saved.
         print(
-            f"Results have been saved to {output_dir}/{task.metadata.name}/results.csv"
+            f"Results have been saved to {output_dir}/{task.metadata.name}/"
         )
 
     # def conbine_results(self):
+
+    @staticmethod
+    def format_results(results):
+        formatted_string = ""
+        for metric_group in results:
+            
+            # Format each "Metric: value" with fixed width for perfect alignment
+            formatted = [
+                f"{k}: {v:.5f}".ljust(20)
+                for k, v in metric_group.items()
+            ]
+
+            # Print 3 per line like your output
+            for i in range(0, len(formatted), 3):
+                formatted_string += ("\t" + "".join(formatted[i:i+3]).rstrip()) + "\n"
+        
+        logging.debug(formatted_string)
+        return formatted_string
 
     @staticmethod
     def evaluate(task: BaseTask, results_dir: str = "./results"):
@@ -106,11 +133,15 @@ class TaskRunner:
             ),
             sep="\t",
         )
-        qrels_dict = (
-            df_qrels.groupby("query_id")
-            .apply(lambda x: dict(zip(x["corpus_id"], x["score"])))
-            .to_dict()
-        )
+        # qrels_dict = (
+        #     df_qrels.groupby("query_id",)
+        #     .apply(lambda x: dict(zip(x["corpus_id"], x["score"])))
+        #     .to_dict()
+        # )
+        qrels_dict = {
+            qid: dict(zip(g["corpus_id"], g["score"]))
+            for qid, g in df_qrels.groupby("query_id")
+        }
         results = (
             task.rerank_results
             if task.rerank_results
@@ -131,11 +162,6 @@ class TaskRunner:
         )
 
         return task.evaluate(qrels_dict, results, [1, 5, 10])
-
-    def run(self, task):
-        self.runtask(task)
-        eval_result = self.evaluate(task)
-        print(json.dumps(eval_result, indent=2))
 
     @staticmethod
     def combine_results(tasks: List[BaseTask], results_dir: str = "./results"):
@@ -159,20 +185,43 @@ class TaskRunner:
             )
             results = pd.concat([results, result], ignore_index=True)
         results.to_csv(os.path.join(results_dir, "combined_results.csv"), index=False)
+    
+    @staticmethod
+    def save_metrics(tasks: List[BaseTask], title: str = "", results_dir: str = "./results"):
+        final_string = ""
+        for task in tasks:
+            if isinstance(task, type):  # task should be type `BaseTask`
+                task = task(load_data=False)
+            formated_string = task.metadata.name + "\n"
+            eval_result = TaskRunner.evaluate(task, results_dir=results_dir)
+            formated_string += TaskRunner.format_results(eval_result)
+            final_string += formated_string + "\n"
+        if title:
+            final_string = "-- " + title + " --\n\n" + final_string
+        with open(os.path.join(results_dir, "metrics.txt"), "w") as f:
+            f.write(final_string)
+        return final_string
+
+    def run(self, task: BaseTask, results_dir: str = "./results"):
+        self.runtask(task, results_dir=results_dir)
+        eval_result = self.evaluate(task, results_dir=results_dir)
+        formated_string = self.format_results(eval_result)
+        print(formated_string)
 
 
-# if __name__ == "__main__":
-#     all_tasks = [
-#         ConvFinQA,
-#         FinDER,
-#         FinQABench,
-#         FinQA,
-#         FinanceBench,
-#         MultiHiertt,
-#         TATQA
-#     ]
-#     # runner = TaskRunner()
-#     # for task in all_tasks:
-#     #     current_task = task()
-#     #     runner.run(current_task)
-#     # runner.combine_results(results_dir='results', tasks=all_tasks)
+if __name__ == "__main__":
+    all_tasks: List[type] = [
+        ConvFinQA,
+        FinDER,
+        FinQABench,
+        FinQA,
+        FinanceBench,
+        MultiHiertt,
+        TATQA
+    ]
+    runner = TaskRunner()
+    for task in all_tasks:
+        current_task: BaseTask = task()
+        runner.run(current_task, results_dir='./results')
+    runner.combine_results(tasks=all_tasks, results_dir='results')
+    runner.save_metrics(tasks=all_tasks, results_dir='results')
