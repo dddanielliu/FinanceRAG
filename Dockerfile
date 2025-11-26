@@ -7,6 +7,7 @@ FROM base AS python-base
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
+        vim \
         curl \
         git \
         ca-certificates \
