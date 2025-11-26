@@ -3,7 +3,7 @@ from .TaskMetadata import TaskMetadata
 
 
 class FinQABench(BaseTask):
-    def __init__(self):
+    def __init__(self, **kwargs):
         self.metadata: TaskMetadata = TaskMetadata(
             name="FinQABench",
             description="FinQABench: A New QA Benchmark for Finance applications",
@@ -27,4 +27,4 @@ class FinQABench(BaseTask):
             sample_creation="LM-generated and verified",
             bibtex_citation=None,
         )
-        super().__init__(self.metadata)
+        super().__init__(self.metadata, **kwargs)

@@ -3,7 +3,7 @@ from .TaskMetadata import TaskMetadata
 
 
 class FinQA(BaseTask):
-    def __init__(self):
+    def __init__(self, **kwargs):
         self.metadata: TaskMetadata = TaskMetadata(
             name="FinQA",
             description="FinQA: A Dataset of Numerical Reasoning over Financial Data",
@@ -34,4 +34,4 @@ class FinQA(BaseTask):
                 }
             """,
         )
-        super().__init__(self.metadata)
+        super().__init__(self.metadata, **kwargs)

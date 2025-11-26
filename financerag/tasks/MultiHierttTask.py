@@ -3,7 +3,7 @@ from .TaskMetadata import TaskMetadata
 
 
 class MultiHiertt(BaseTask):
-    def __init__(self):
+    def __init__(self, **kwargs):
         self.metadata: TaskMetadata = TaskMetadata(
             name="MultiHiertt",
             description="MultiHiertt: Numerical Reasoning over Multi Hierarchical Tabular and Textual Data",
@@ -42,4 +42,4 @@ class MultiHiertt(BaseTask):
                 }
             """,
         )
-        super().__init__(self.metadata)
+        super().__init__(self.metadata, **kwargs)

@@ -47,7 +47,7 @@ class BaseTask:
             Saves the results (retrieval, reranking, and generated) to CSV and JSONL files.
     """
 
-    def __init__(self, metadata: TaskMetadata):
+    def __init__(self, metadata: TaskMetadata, load_data: bool = True):
         """
         Initializes the BaseTask class with metadata for loading and processing retrieval tasks.
 
@@ -62,7 +62,8 @@ class BaseTask:
         self.rerank_results: Optional[Dict] = None
         self.generate_results: Optional[Dict] = None
 
-        self.load_data()
+        if load_data:
+            self.load_data()
 
     @property
     def metadata_dict(self) -> Dict[str, Any]:
@@ -370,6 +371,33 @@ class BaseTask:
                 )
 
             logger.info(f"generate_results saved successfully to {jsonl_file_path}")
+
+    def save_original_results(self, output_dir: Optional[str] = None) -> None:
+        if output_dir is None:
+            return
+
+         # Create the output directory if it does not exist
+        output_dir = os.path.join(output_dir, self.metadata.name)
+        os.makedirs(output_dir, exist_ok=True)
+
+        logger.info(f"Output directory set to: {output_dir}")
+
+        # Path to save the CSV file
+        jsonl_file_path = os.path.join(output_dir, "original_results.jsonl")
+        logger.info(f"Saving original results to JSONL file: {jsonl_file_path}")
+ 
+        # Determine whether to use rerank results or retrieve results
+        final_result = (
+            self.rerank_results
+            if self.rerank_results is not None
+            else self.retrieve_results
+        )
+
+        if final_result is not None:
+            output_json = json.dumps(final_result, indent=2)
+            with open(jsonl_file_path, "w") as f:
+                f.write(output_json)
+            logger.info(f"Original results saved successfully to {jsonl_file_path}")
 
     # adapted from https://github.com/beir-cellar/beir/blob/main/beir/retrieval/evaluation.py
     @staticmethod

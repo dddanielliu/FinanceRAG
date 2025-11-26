@@ -3,7 +3,7 @@ from .TaskMetadata import TaskMetadata
 
 
 class TATQA(BaseTask):
-    def __init__(self):
+    def __init__(self, **kwargs):
         self.metadata: TaskMetadata = TaskMetadata(
             name="TAT-QA",
             description="TAT-QA: A Question Answering Benchmark on a Hybrid of Tabular and Textual Content in Finance",
@@ -47,4 +47,4 @@ class TATQA(BaseTask):
                 }
             """,
         )
-        super().__init__(self.metadata)
+        super().__init__(self.metadata, **kwargs)

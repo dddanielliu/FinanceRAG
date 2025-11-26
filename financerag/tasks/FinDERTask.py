@@ -5,7 +5,7 @@ from .TaskMetadata import TaskMetadata
 
 
 class FinDER(BaseTask):
-    def __init__(self):
+    def __init__(self, **kwargs):
         self.metadata: TaskMetadata = TaskMetadata(
         name="FinDER",
         description="Prepared for competition from Linq",
@@ -29,5 +29,5 @@ class FinDER(BaseTask):
         sample_creation="human-generated",
         bibtex_citation=None,
     )
-        super().__init__(self.metadata)
+        super().__init__(self.metadata, **kwargs)
 
