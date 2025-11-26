@@ -175,6 +175,7 @@ class HFDataLoader:
             corpus_ds = load_dataset(
                 "json",
                 data_files=self.corpus_file,
+                split="train",
                 streaming=self.streaming,
                 keep_in_memory=self.keep_in_memory,
             )
@@ -208,6 +209,7 @@ class HFDataLoader:
             queries_ds = load_dataset(
                 "json",
                 data_files=self.query_file,
+                split="train",
                 streaming=self.streaming,
                 keep_in_memory=self.keep_in_memory,
             )

@@ -88,7 +88,7 @@ class BaseTask:
             subset = self.metadata_dict["dataset"]["subset"]
 
             corpus, queries = HFDataLoader(
-                hf_repo=dataset_path,
+                data_folder=dataset_path,
                 subset=subset,
                 keep_in_memory=False,
             ).load()
