@@ -2,11 +2,14 @@ import csv
 import json
 import logging
 import os
+from collections import defaultdict
 from typing import Any, Callable, Dict, List, Literal, Optional, Tuple
 
 import pytrec_eval
 
 from financerag.common import Generator, HFDataLoader, Reranker, Retrieval
+from financerag.retrieval.bm25 import BM25Retriever
+from financerag.retrieval.dense import DenseRetrieval
 from financerag.tasks.TaskMetadata import TaskMetadata
 
 logger = logging.getLogger(__name__)
@@ -138,10 +141,19 @@ class BaseTask:
 
         return self.retrieve_results
 
+    def retrieve_hybrid(self, dense_retriever: DenseRetrieval, sparse_retriever: BM25Retriever, top_k: Optional[int] = 100, **kwargs):
+        dense_retrieve_results = dense_retriever.retrieve(
+            queries=self.queries, corpus=self.corpus, top_k=top_k, **kwargs
+        )
+        sparse_retreive_results = sparse_retriever.retrieve(
+            queries=self.queries, corpus=self.corpus, top_k=top_k, **kwargs
+        )
+        return dense_retrieve_results, sparse_retreive_results
+
     def rerank(
             self,
             reranker: Reranker,
-            results: Optional[Dict[str, Dict[str, float]]] = None,
+            results: Optional[Dict[str, Dict[str, float]] | Dict[str, List[Dict[str, float]]]]= None,
             top_k: int = 100,
             batch_size: Optional[int] = None,
             **kwargs,
@@ -373,7 +385,7 @@ class BaseTask:
 
             logger.info(f"generate_results saved successfully to {jsonl_file_path}")
 
-    def save_original_results(self, output_dir: Optional[str] = None) -> None:
+    def save_original_results(self, rerank_results: Optional[Dict[str, Dict[str, float]]] = None, output_dir: Optional[str] = None) -> None:
         if output_dir is None:
             return
 
@@ -389,10 +401,15 @@ class BaseTask:
  
         # Determine whether to use rerank results or retrieve results
         final_result = (
-            self.rerank_results
-            if self.rerank_results is not None
-            else self.retrieve_results
+            rerank_results if rerank_results is not None 
+            else self.rerank_results if self.rerank_results is not None
+            else self.retrieve_results if self.retrieve_results is not None
+            else None
         )
+
+        if final_result is None:
+            logger.info("No original results to save.")
+            return
 
         if final_result is not None:
             output_json = json.dumps(final_result, indent=2)

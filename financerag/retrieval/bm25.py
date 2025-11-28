@@ -3,6 +3,7 @@ from typing import Any, Callable, Dict, List, Literal, Optional
 
 import numpy as np
 from nltk.tokenize import word_tokenize
+from rank_bm25 import BM25Okapi
 
 from financerag.common import Lexical, Retrieval
 
@@ -22,6 +23,57 @@ def tokenize_list(input_list: List[str]) -> List[List[str]]:
             A list where each element is a list of tokens corresponding to an input string.
     """
     return list(map(word_tokenize, input_list))
+
+class BM25Model(Lexical):
+    """
+    A BM25 lexical model that calculates relevance scores between a tokenized query
+    and a corpus of documents.
+    """
+
+    def __init__(self, corpus: Dict[str, Dict[str, str]]):
+        """
+        Initializes the BM25 model by tokenizing the provided corpus and building the index.
+
+        Args:
+            corpus (`Dict[str, Dict[str, str]]`):
+                A dictionary where keys are document IDs and values are dictionaries containing
+                document content (keys "title" and "text").
+        """
+        # We store doc_ids to ensure the order matches the retriever's iteration
+        self.doc_ids = list(corpus.keys())
+        
+        # 1. Prepare the corpus: Concatenate Title + Text, Lowercase, and Tokenize
+        tokenized_corpus = [
+            word_tokenize(
+                (corpus[doc_id].get("title", "") + " " + corpus[doc_id].get("text", "")).lower()
+            )
+            for doc_id in self.doc_ids
+        ]
+
+        # 2. Initialize the BM25Okapi instance from rank_bm25 library
+        # This builds the inverted index and pre-computes IDF scores
+        self.bm25 = BM25Okapi(tokenized_corpus)
+
+    def get_scores(self, query: List[str], **kwargs) -> List[float]:
+        """
+        Calculates BM25 relevance scores for a given tokenized query against the indexed corpus.
+
+        Args:
+            query (`List[str]`):
+                The tokenized query (e.g., ["search", "term"]).
+            **kwargs:
+                Additional arguments (ignored in this implementation).
+
+        Returns:
+            `List[float]`:
+                A list of float scores corresponding to the documents in the order they were
+                processed during initialization.
+        """
+        # The library returns a list of scores matching the order of the corpus passed in __init__
+        scores = self.bm25.get_scores(query)
+        
+        # Ensure we return a standard list of floats as defined in the Lexical ABC
+        return scores
 
 
 class BM25Retriever(Retrieval):

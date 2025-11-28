@@ -167,7 +167,7 @@ class Reranker(abc.ABC):
             self,
             corpus: Dict[str, Dict[str, str]],
             queries: Dict[str, str],
-            results: Dict[str, Dict[str, float]],
+            results: Dict[str, Dict[str, float]] | Dict[str, List[Dict[str, float]]] | Tuple,
             top_k: int,
             batch_size: Optional[int] = None,
             **kwargs
