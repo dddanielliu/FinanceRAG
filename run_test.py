@@ -149,7 +149,7 @@ def run(task: BaseTask, results_dir: str = "./results", task_class: Optional[typ
         reranker=reranker_model_2,
         results=rerank_results,
         top_k=60,  # Rerank the top_k documents
-        batch_size=32
+        batch_size=8
     )
 
     del reranker_model_2
@@ -167,13 +167,13 @@ if __name__ == '__main__':
         MultiHiertt,
         TATQA
     ]
-    for task in all_tasks:
-        current_task: BaseTask = task(load_data=False) # (corpus_file='corpus_prep.jsonl', query_file='queries_prep.jsonl')
-        TaskRunner.run_custom(current_task, run, results_dir='./results', task_class=task)
-        evaluate_result = TaskRunner.evaluate(task, results_dir='./results')
-        print(current_task.metadata.name)
-        print(TaskRunner.format_results(evaluate_result))
+    #for task in all_tasks:
+    #    current_task: BaseTask = task(load_data=False) # (corpus_file='corpus_prep.jsonl', query_file='queries_prep.jsonl')
+    #    TaskRunner.run_custom(current_task, run, results_dir='./results', task_class=task)
+    #    evaluate_result = TaskRunner.evaluate(task, results_dir='./results')
+    #    print(current_task.metadata.name)
+    #    print(TaskRunner.format_results(evaluate_result))
 
     TaskRunner.combine_results(tasks=all_tasks, results_dir='results')
-    metrics = TaskRunner.save_metrics(tasks=all_tasks, title='dense with keyword extraction & BM25 with prep & hybrid & rerank with jina-reranker-v2-base-multilingual-reranker-base', results_dir='results')
+    metrics = TaskRunner.save_metrics(tasks=all_tasks, title='dense with keyword extraction & BM25 with prep & hybrid & rerank with BAAI/bge-reranker-v2-m3', results_dir='results')
     print(metrics)

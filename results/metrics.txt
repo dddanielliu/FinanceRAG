@@ -1,0 +1,44 @@
+-- dense with keyword extraction & BM25 with prep & hybrid & rerank with BAAI/bge-reranker-v2-m3 --
+
+ConvFinQA
+	NDCG@1: 0.46825     NDCG@5: 0.65293     NDCG@10: 0.67636
+	MAP@1: 0.46825      MAP@5: 0.60503      MAP@10: 0.61487
+	Recall@1: 0.46825   Recall@5: 0.79365   Recall@10: 0.86508
+	P@1: 0.46825        P@5: 0.15873        P@10: 0.08651
+
+FinDER
+	NDCG@1: 0.40625     NDCG@5: 0.51701     NDCG@10: 0.53208
+	MAP@1: 0.35547      MAP@5: 0.47027      MAP@10: 0.47897
+	Recall@1: 0.35547   Recall@5: 0.61797   Recall@10: 0.65625
+	P@1: 0.40625        P@5: 0.15937        P@10: 0.08750
+
+FinQABench
+	NDCG@1: 0.80000     NDCG@5: 0.86641     NDCG@10: 0.87604
+	MAP@1: 0.80000      MAP@5: 0.84444      MAP@10: 0.84778
+	Recall@1: 0.80000   Recall@5: 0.93333   Recall@10: 0.96667
+	P@1: 0.80000        P@5: 0.18667        P@10: 0.09667
+
+FinQA
+	NDCG@1: 0.47384     NDCG@5: 0.62900     NDCG@10: 0.65483
+	MAP@1: 0.47384      MAP@5: 0.58464      MAP@10: 0.59557
+	Recall@1: 0.47384   Recall@5: 0.76163   Recall@10: 0.84012
+	P@1: 0.47384        P@5: 0.15233        P@10: 0.08401
+
+FinanceBench
+	NDCG@1: 0.77778     NDCG@5: 0.84109     NDCG@10: 0.85740
+	MAP@1: 0.64444      MAP@5: 0.80444      MAP@10: 0.81201
+	Recall@1: 0.64444   Recall@5: 0.92222   Recall@10: 0.96667
+	P@1: 0.77778        P@5: 0.24000        P@10: 0.12667
+
+MultiHiertt
+	NDCG@1: 0.30479     NDCG@5: 0.17469     NDCG@10: 0.17926
+	MAP@1: 0.08120      MAP@5: 0.10486      MAP@10: 0.10914
+	Recall@1: 0.08120   Recall@5: 0.13374   Recall@10: 0.15679
+	P@1: 0.30479        P@5: 0.10548        P@10: 0.06267
+
+TAT-QA
+	NDCG@1: 0.41968     NDCG@5: 0.53949     NDCG@10: 0.56938
+	MAP@1: 0.41968      MAP@5: 0.50341      MAP@10: 0.51615
+	Recall@1: 0.41968   Recall@5: 0.64859   Recall@10: 0.73896
+	P@1: 0.41968        P@5: 0.12972        P@10: 0.07390
+
